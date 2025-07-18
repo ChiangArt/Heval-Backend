@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 10px;
+        }
+        .company-info {
+            margin-bottom: 10px;
+        }
+        .document-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .document-info {
+            display: table;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .document-info-row {
+            display: table-row;
+        }
+        .document-info-cell {
+            display: table-cell;
+            padding: 3px 0;
+        }
+        .client-info {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+        }
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 11px;
+        }
+        .products-table th {
+            background-color: #333;
+            color: white;
+            padding: 5px;
+            text-align: left;
+        }
+        .products-table td {
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+        .totals {
+            margin-top: 10px;
+            text-align: right;
+        }
+        .total-amount {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .footer {
+            font-size: 10px;
+            text-align: center;
+            margin-top: 20px;
+            color: #555;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .signature-area {
+            margin-top: 30px;
+        }
+        .signature-line {
+            display: inline-block;
+            width: 45%;
+            text-align: center;
+            margin-top: 40px;
+        }
+        .signature-line span {
+            border-top: 1px solid #333;
+            padding-top: 5px;
+            display: inline-block;
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="company-info">
+        <h2 style="margin:5px 0;">HEVAL GROUP E.I.R.L.</h2>
+        <p style="margin:3px 0;">Jr. Viru Nro. 496 - Lima, Perú</p>
+        <p style="margin:3px 0;">Teléfono: 990916799 | Email: heval.group.contact@gmail.com</p>
+    </div>
+    <div class="document-title">BOLETA DE VENTA ELECTRÓNICA</div>
+    <div class="document-info">
+        <div class="document-info-row">
+            <div class="document-info-cell"><strong>RUC:</strong> 20613281178</div>
+            <div class="document-info-cell" style="text-align:right;"><strong>Fecha:</strong> [[fecha]]</div>
+        </div>
+        <div class="document-info-row">
+            <div class="document-info-cell"><strong>N° Boleta:</strong> B001-[[orderNumber]]</div>
+            <div class="document-info-cell" style="text-align:right;"><strong>Hora:</strong> [[hora]]</div>
+        </div>
+    </div>
+</div>
+
+<div class="client-info">
+    <p><strong>Cliente:</strong> [[nombre]]</p>
+    <p><strong>Dirección:</strong> [[direccion]]</p>
+</div>
+
+<table class="products-table">
+    <thead>
+    <tr>
+        <th width="8%">Cant.</th>
+        <th width="52%">Descripción</th>
+        <th width="15%">P. Unit.</th>
+        <th width="15%">Subtotal</th>
+    </tr>
+    </thead>
+    <tbody>
+    [[tabla_productos]]
+    </tbody>
+</table>
+
+<div class="totals">
+    <p>Subtotal: S/ [[subtotal]]</p>
+    <p>IGV (18%): S/ [[igv]]</p>
+    <p class="total-amount">TOTAL: S/ [[total]]</p>
+</div>
+
+<div class="signature-area">
+    <div class="signature-line">
+        <span>Cliente</span>
+    </div>
+    <div class="signature-line">
+        <span>Representante Legal</span>
+    </div>
+</div>
+
+<div class="footer">
+    <p>Representación impresa del comprobante electrónico</p>
+    <p>Autorizado mediante Resolución de Intendencia N° 034-005-0005487</p>
+    <p>Gracias por su compra - Vuelva pronto</p>
+</div>
+</body>
+</html>
