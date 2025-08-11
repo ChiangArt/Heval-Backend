@@ -10,5 +10,6 @@ package com.heval.ecommerce.dto.enumeration;
 public enum UserRole {
 
     ADMIN,
-    CLIENT
+    CLIENT,
+    ANONYMOUS
 }

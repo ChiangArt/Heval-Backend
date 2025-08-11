@@ -50,8 +50,20 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
+                        // Permitir todo lo de autenticación abierto
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
+                        // Permitir solo estas rutas GET específicas sin autenticación
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products/slug/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products/colors").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products/by-collection/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/coupon").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/collections").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/collections/**").permitAll()
+
+                        // El resto de rutas/métodos requieren autenticación
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
@@ -61,7 +73,6 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .httpBasic(Customizer.withDefaults());
-
 
         return http.build();
     }
@@ -85,19 +96,15 @@ public class SecurityConfig {
     public JwtDecoder jwtDecoder() {
         try {
             SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-
             return NimbusJwtDecoder.withSecretKey(key).build();
         } catch (Exception e) {
             log.error("Error configuring JWT decoder", e);
             throw e;
         }
-
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
 }
