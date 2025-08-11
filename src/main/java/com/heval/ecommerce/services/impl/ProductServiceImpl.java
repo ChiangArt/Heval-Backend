@@ -1,21 +1,16 @@
 package com.heval.ecommerce.services.impl;
-import com.heval.ecommerce.dto.request.ProductAdminFilterRequest;
 import com.heval.ecommerce.dto.request.ProductFilterRequest;
-import com.heval.ecommerce.dto.response.ProductAdminProjection;
-import com.heval.ecommerce.dto.response.ProductCardProjection;
 import com.heval.ecommerce.dto.response.ProductCardResponse;
-import com.heval.ecommerce.entity.Collection;
-import com.heval.ecommerce.entity.Product;
+import com.heval.ecommerce.entity.*;
 import com.heval.ecommerce.exception.ApiValidateException;
-import com.heval.ecommerce.repository.CollectionRepository;
-import com.heval.ecommerce.repository.ProductRepository;
-import com.heval.ecommerce.services.ProductService;
+import com.heval.ecommerce.mapper.ProductMapper;
+import com.heval.ecommerce.repository.*;
+import com.heval.ecommerce.services.*;
+import com.heval.ecommerce.specification.ProductSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.*;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -31,58 +26,39 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CollectionRepository collectionRepository;
+    private final ProductMapper productMapper;
+    private final S3Service s3Service;
+
 
     @Override
-    public Page<ProductCardResponse> filterProducts(ProductFilterRequest filter, Pageable pageable) {
-        String colorsCsv = (filter.colors() != null && !filter.colors().isEmpty())
-                ? String.join(",", filter.colors())
-                : null;
-
-        Page<ProductCardProjection> projections = productRepository.findAllCardProductsNative(
-                filter.collectionId(),
-                filter.searchText(),
-                colorsCsv,
+    public Page<ProductCardResponse> getfilteredProducts(ProductFilterRequest productFilterRequest, Pageable pageable) {
+        Page<Product> productPage = productRepository.findAll(
+                ProductSpecification.filterBy(productFilterRequest),
                 pageable
         );
 
-        return projections.map(proj -> {
-            BigDecimal recalculatedPrice = calculateCurrentPrice(
-                    proj.getPrice(),
-                    proj.getDiscountPercentage(),
-                    proj.getDiscountUntil()
+        return productPage.map(product -> {
+            BigDecimal currentPrice = calculateCurrentPrice(
+                    product.getPrice(),
+                    product.getDiscountPercentage(),
+                    product.getDiscountUntil()
             );
-
-            return new ProductCardResponse(
-                    proj.getId(),
-                    proj.getTitle(),
-                    proj.getSlug(),
-                    proj.getPrice(),
-                    proj.getDiscountPercentage(),
-                    recalculatedPrice,
-                    List.of(proj.getImageUrls()),
-                    List.of(proj.getColors()),
-                    proj.getDiscountUntil()
-            );
+            return productMapper.toCardResponse(product, currentPrice);
         });
     }
 
-    @Override
-    public Page<ProductAdminProjection> filterAdminProducts(ProductAdminFilterRequest filter, Pageable pageable) {
-        String searchText = (filter.searchText() != null && !filter.searchText().isBlank())
-                ? filter.searchText()
-                : null;
-
-        return productRepository.findAllAdminProducts(searchText, pageable);
-    }
 
 
 
-    @Cacheable(value = "productById", key = "#id")
+
     @Override
     public Product findProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ApiValidateException("Producto no encontrado con id: " + id));
     }
+
+
+
 
     @Cacheable(value = "productBySlug", key = "#slug")
     @Override
@@ -90,6 +66,9 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findBySlugAndActiveTrue(slug)
                 .orElseThrow(() -> new ApiValidateException("Producto no encontrado con slug: " + slug));
     }
+
+
+
 
     @Transactional
     @CacheEvict(value = "productsByCollection", key = "#product.collection.id")
@@ -104,8 +83,10 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(product);
     }
 
+
+
+
     @Transactional
-    @CacheEvict(value = "productsByCollection", key = "#product.collection.id")
     @Override
     public Product updateProduct(Long productId, Product product) {
         Product existingProduct = productRepository.findById(productId)
@@ -114,7 +95,7 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setTitle(product.getTitle());
         existingProduct.setDescription(product.getDescription());
         existingProduct.setPrice(product.getPrice());
-        existingProduct.setColors(product.getColors());
+        existingProduct.setColor(product.getColor());
         existingProduct.setDescriptionArchetype(product.getDescriptionArchetype());
         existingProduct.setMaterial(product.getMaterial());
         existingProduct.setQuantity(product.getQuantity());
@@ -129,9 +110,11 @@ public class ProductServiceImpl implements ProductService {
         } else {
             existingProduct.setCollection(null);
         }
-
         return productRepository.save(existingProduct);
     }
+
+
+
 
     @Transactional
     @CacheEvict(value = "productsByCollection", allEntries = true)
@@ -140,16 +123,31 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ApiValidateException("Producto no encontrado con id: " + id));
 
+
+        if (product.getImageUrls() != null) {
+            for (String imageUrl : product.getImageUrls()) {
+                String key = s3Service.extractKeyFromUrl(imageUrl);
+                s3Service.deleteFile(key);
+            }
+        }
         product.setActive(false);
 
         productRepository.save(product);
     }
 
+
+
+
+
     @Cacheable(value = "productsByCollection", key = "#collectionId")
     @Override
     public List<Product> findProductsByCollectionId(Long collectionId) {
-        return productRepository.findByCollectionId(collectionId);
+        return productRepository.findByCollectionIdAndActiveTrue(collectionId);
     }
+
+
+
+
 
     public BigDecimal calculateCurrentPrice(BigDecimal price, Integer discountPercent, LocalDateTime discountUntil) {
         if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
@@ -167,6 +165,19 @@ public class ProductServiceImpl implements ProductService {
 
         return price.setScale(2, RoundingMode.HALF_UP);
     }
+
+
+
+
+
+    @Override
+    public List<String> obtenerColores() {
+        return productRepository.findDistinctColors();
+    }
+
+
+
+
 
     private String generateSlug(String title) {
         if (title == null || title.isBlank()) {

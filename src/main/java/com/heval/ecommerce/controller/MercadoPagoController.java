@@ -8,6 +8,7 @@ import com.mercadopago.client.preference.*;
 import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.resources.preference.Preference;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,9 @@ public class MercadoPagoController {
 
     private final OrderService orderService;
     private final JwtService jwtService;
+    @Value("${app.base-url}")
+    private String baseUrl;
+
 
     @PostMapping("/preference/{orderId}")
     public ResponseEntity<?> createPreference(
@@ -39,7 +43,10 @@ public class MercadoPagoController {
                         .body("No autorizado para esta orden.");
             }
 
-            // 4. Crear los items de la orden
+            /*
+             CREA ITEMS DE LA ORDEN
+            */
+
             List<PreferenceItemRequest> items = order.getOrderItems().stream()
                     .map(item -> {
                         Product product = item.getProduct();
@@ -61,14 +68,30 @@ public class MercadoPagoController {
                                 .currencyId("PEN")
                                 .build();
                     })
-                    .toList();
+                    .collect(java.util.stream.Collectors.toList());
+
+// Si la orden tiene cupón, agregarlo como ítem negativo
+            if (order.getCouponCode() != null && order.getCouponDiscount() != null
+                    && order.getCouponDiscount().compareTo(java.math.BigDecimal.ZERO) > 0) {
+
+                PreferenceItemRequest discountItem = PreferenceItemRequest.builder()
+                        .id("discount")
+                        .title("Descuento cupón: " + order.getCouponCode())
+                        .quantity(1)
+                        .unitPrice(order.getCouponDiscount().negate()) // precio negativo
+                        .currencyId("PEN")
+                        .build();
+
+                items.add(discountItem);
+            }
+
 
 
             // 5. URLs de redirección
             PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
-                    .success("https://wedding-landscapes-causing-clarity.trycloudflare.com/shop/checkout/success")
-                    .pending("https://wedding-landscapes-causing-clarity.trycloudflare.com/shop/checkout/pending")
-                    .failure("https://wedding-landscapes-causing-clarity.trycloudflare.com/shop/checkout/failure")
+                    .success(baseUrl+"/shop/checkout/success")
+                    .pending(baseUrl+"/shop/checkout/pending")
+                    .failure(baseUrl+"/shop/checkout/failure")
                     .build();
 
 
@@ -76,10 +99,10 @@ public class MercadoPagoController {
                     .items(items)
                     .backUrls(backUrls)
                     .externalReference(order.getOrderId())
-                    .notificationUrl("https://strategic-seas-bobby-rankings.trycloudflare.com/api/v1/payments/webhook")
+                    .notificationUrl(baseUrl+"/api/v1/payments/webhook")
                     .build();
 
-            MercadoPagoConfig.setAccessToken("APP_USR-7950396496541940-062611-8363f05fe12f8b134e5202788d2c3d7a-2512611759");
+            MercadoPagoConfig.setAccessToken("APP_USR-6176764845168189-070619-efb98fc0ad5e37c8f30c1499b8b9a5fd-2513525544");
 
             PreferenceClient client = new PreferenceClient();
             Preference preference = client.create(preferenceRequest);

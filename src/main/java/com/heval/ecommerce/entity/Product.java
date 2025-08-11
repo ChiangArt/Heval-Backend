@@ -32,10 +32,7 @@ public class Product {
 
     private BigDecimal price;
 
-    @ElementCollection
-    @CollectionTable(name = "product_colors", joinColumns = @JoinColumn(name = "product_id"))
-    @Column(name = "color")
-    private List<String> colors;
+    private String color;
 
     private Integer quantity;
 

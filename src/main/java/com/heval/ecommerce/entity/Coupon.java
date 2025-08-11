@@ -1,5 +1,4 @@
 package com.heval.ecommerce.entity;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,7 +15,7 @@ public class Coupon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String code; //
+    private String code;
 
     @Column(name = "discount_percentage")
     private Integer discountPercentage;

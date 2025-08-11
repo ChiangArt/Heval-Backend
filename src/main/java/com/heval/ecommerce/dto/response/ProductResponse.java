@@ -16,7 +16,7 @@ public record ProductResponse(
         BigDecimal currentPrice,
         Integer discountPercentage,
         LocalDateTime discountUntil,
-        List<String> colors,
+        String color,
         Integer quantity,
         List<String> imageUrls,
         LocalDateTime createdAt,

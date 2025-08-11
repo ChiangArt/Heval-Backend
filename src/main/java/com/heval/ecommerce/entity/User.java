@@ -1,15 +1,12 @@
 package com.heval.ecommerce.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.heval.ecommerce.dto.enumeration.UserStatus;
 import com.heval.ecommerce.dto.enumeration.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
-
-
 
 @Entity
 @Data

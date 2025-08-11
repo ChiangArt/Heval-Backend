@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -42,13 +43,13 @@ public class OrderServiceImpl implements OrderService {
             throw new ApiValidateException("El carrito está vacío");
         }
 
-        // Asignar usuario y timestamps a ContactInfo y ShippingAddress
+
         contactInfo.setUser(existingUser);
         contactInfo.setCreatedAt(LocalDateTime.now());
 
         shippingAddress.setUser(existingUser);
 
-        // Crear la orden y vincular relaciones
+
         Order order = Order.builder()
                 .user(existingUser)
                 .orderId(generateOrderId())
@@ -78,14 +79,57 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
 
         order.setOrderItems(orderItems);
-        order.setTotalItems(orderItems.stream().mapToInt(OrderItem::getQuantity).sum());
-        order.setTotalPrice(calculateTotal(orderItems, false));
-        order.setTotalDiscountedPrice(calculateTotal(orderItems, true));
+
+
+//        order.setTotalItems(orderItems.stream().mapToInt(OrderItem::getQuantity).sum());
+//        order.setTotalPrice(calculateTotal(orderItems, false));
+//        order.setTotalDiscountedPrice(calculateTotal(orderItems, true));
+
+        int totalItems = orderItems.stream().mapToInt(OrderItem::getQuantity).sum();
+        BigDecimal totalPrice = calculateTotal(orderItems, false); // precio normal sin descuentos
+        BigDecimal totalDiscountedPrice = calculateTotal(orderItems, true); // con descuentos por producto
+
+// Si el carrito tiene un cupón, aplicarlo
+        if (cart.getCoupon() != null && cart.getDiscount() != null && cart.getDiscount().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal couponDiscount = cart.getDiscount();
+
+            order.setCouponCode(cart.getCoupon().getCode());
+            order.setCouponDiscount(couponDiscount);
+
+            totalDiscountedPrice = totalDiscountedPrice.subtract(couponDiscount).setScale(2, BigDecimal.ROUND_HALF_UP);
+        }
+
+        order.setTotalItems(totalItems);
+        order.setTotalPrice(totalPrice);
+        order.setTotalDiscountedPrice(totalDiscountedPrice);
 
         clearCart(cart);
 
         return orderRepository.save(order);
     }
+
+
+    public List<Order> getOrdersByDateRange(String start, String end) {
+        LocalDateTime startDateTime = LocalDateTime.parse(start);
+        LocalDateTime endDateTime = LocalDateTime.parse(end);
+        return orderRepository.findByCreatedAtBetween(startDateTime, endDateTime);
+    }
+
+
+
+    public List<Order> getOrdersByDate(String date) {
+        LocalDate localDate = LocalDate.parse(date); // YYYY-MM-DD
+        LocalDateTime startOfDay = localDate.atStartOfDay();
+        LocalDateTime endOfDay = localDate.plusDays(1).atStartOfDay();
+
+        return orderRepository.findByCreatedAtBetween(startOfDay, endOfDay);
+    }
+
+
+
+
+
+
 
     @Override
     public String retryPayment(String orderId) {
@@ -216,6 +260,8 @@ public class OrderServiceImpl implements OrderService {
         cart.setTotalItem(0);
         cart.setTotalPrice(BigDecimal.ZERO);
         cart.setTotalDiscountPrice(BigDecimal.ZERO);
+        cart.setCoupon(null);
+        cart.setDiscount(BigDecimal.ZERO);
         cartRepository.save(cart);
     }
 }

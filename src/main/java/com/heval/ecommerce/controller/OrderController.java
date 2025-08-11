@@ -1,5 +1,4 @@
 package com.heval.ecommerce.controller;
-
 import com.heval.ecommerce.dto.enumeration.OrderStatus;
 import com.heval.ecommerce.dto.enumeration.UserRole;
 import com.heval.ecommerce.dto.request.OrderRequest;
@@ -16,7 +15,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -85,19 +83,23 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderResponse> getOrderByOrderId(@RequestHeader("Authorization") String token,
-                                                           @PathVariable String orderId) {
+    public ResponseEntity<OrderResponse> getOrderByOrderId(
+            @RequestHeader("Authorization") String token,
+            @PathVariable String orderId) {
+
         Long userId = jwtService.extractUserId(token);
+        UserRole role = jwtService.extractUserRole(token);
         Order order = orderService.findOrderByOrderId(orderId);
 
-        // Validación: el usuario debe ser el dueño de la orden
-        if (!order.getUser().getId().equals(userId)) {
+        // Permitir si es dueño o admin
+        if (!order.getUser().getId().equals(userId) && role != UserRole.ADMIN) {
             return ResponseEntity.status(403).body(null);
         }
 
         OrderResponse response = orderMapper.toResponse(order);
         return ResponseEntity.ok(response);
     }
+
 
     @PostMapping("/retry-payment/{orderId}")
     public ResponseEntity<String> retryPayment(@RequestHeader("Authorization") String token,
@@ -114,18 +116,34 @@ public class OrderController {
     }
 
     @GetMapping("/admin")
-    public ResponseEntity<List<OrderResponse>> getAllOrders(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<OrderResponse>> getAllOrders(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(required = false) String start,
+            @RequestParam(required = false) String end,
+            @RequestParam(required = false) String date
+    ) {
         UserRole role = jwtService.extractUserRole(token);
 
         if (role != UserRole.ADMIN) {
             return ResponseEntity.status(403).body(null);
         }
 
-        List<Order> orders = orderService.getAllOrders();
+        List<Order> orders;
+
+        if (start != null && end != null) {
+            orders = orderService.getOrdersByDateRange(start, end);
+        } else if (date != null) {
+            orders = orderService.getOrdersByDate(date);
+        } else {
+            orders = orderService.getAllOrders();
+        }
+
         List<OrderResponse> responseList = orders.stream()
                 .map(orderMapper::toResponse)
                 .toList();
 
         return ResponseEntity.ok(responseList);
     }
+
+
 }

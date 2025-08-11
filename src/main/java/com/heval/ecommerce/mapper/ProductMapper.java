@@ -1,12 +1,12 @@
 package com.heval.ecommerce.mapper;
 import com.heval.ecommerce.dto.request.ProductRequest;
+import com.heval.ecommerce.dto.response.ProductCardResponse;
 import com.heval.ecommerce.dto.response.ProductResponse;
 import com.heval.ecommerce.entity.Collection;
 import com.heval.ecommerce.entity.Product;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
 
 @Component
 public class ProductMapper {
@@ -21,7 +21,7 @@ public class ProductMapper {
                 .price(request.price())
                 .descriptionArchetype(request.descriptionArchetype())
                 .material(request.material())
-                .colors(request.colors())
+                .color(request.color())
                 .quantity(request.quantity())
                 .discountPercentage(request.discountPercentage())
                 .discountUntil(request.discountUntil())
@@ -48,17 +48,28 @@ public class ProductMapper {
                 currentPrice,
                 product.getDiscountPercentage(),
                 product.getDiscountUntil(),
-                product.getColors(),
+                product.getColor(),
                 product.getQuantity(),
                 product.getImageUrls(),
                 product.getCreatedAt(),
                 product.getCollection() != null ? product.getCollection().getId() : null,
                 product.isActive()
-
         );
     }
 
 
-
+    public ProductCardResponse toCardResponse(Product product, BigDecimal currentPrice) {
+        return new ProductCardResponse(
+                product.getId(),
+                product.getTitle(),
+                product.getSlug(),
+                product.getPrice(),
+                product.getQuantity(),
+                product.getDiscountPercentage(),
+                currentPrice,
+                product.getImageUrls(),
+                product.getDiscountUntil()
+        );
+    }
 
 }

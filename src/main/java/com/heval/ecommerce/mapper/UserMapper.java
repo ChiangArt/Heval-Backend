@@ -1,10 +1,8 @@
 package com.heval.ecommerce.mapper;
-
 import com.heval.ecommerce.dto.enumeration.UserStatus;
 import com.heval.ecommerce.dto.request.UserRequest;
 import com.heval.ecommerce.dto.request.UserUpdateRequest;
 import com.heval.ecommerce.dto.response.UserResponse;
-import com.heval.ecommerce.dto.response.UserSummary;
 import com.heval.ecommerce.entity.User;
 import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;

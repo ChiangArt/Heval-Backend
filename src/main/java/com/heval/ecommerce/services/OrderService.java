@@ -6,11 +6,14 @@ import com.heval.ecommerce.entity.Order;
 import com.heval.ecommerce.entity.ShippingAddress;
 import com.heval.ecommerce.entity.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OrderService {
 
     Order createOrder(ContactInfo contactInfo, ShippingAddress address, User user);
+    public List<Order> getOrdersByDate(String date);
+    public List<Order> getOrdersByDateRange(String start, String end);
 
     Order findOrderByOrderId(String orderId);
 

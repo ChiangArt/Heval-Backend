@@ -9,10 +9,10 @@ public record ProductCardResponse(
         String title,
         String slug,
         BigDecimal price,
+        Integer quantity,
         Integer discountPercentage,
         BigDecimal currentPrice,
         List<String> imageUrls,
-        List<String> colors,
         LocalDateTime discountUntil
-) { }
+) {}
 

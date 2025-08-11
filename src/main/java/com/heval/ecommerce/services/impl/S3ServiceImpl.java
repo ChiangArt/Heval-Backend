@@ -1,5 +1,4 @@
 package com.heval.ecommerce.services.impl;
-
 import com.heval.ecommerce.services.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,8 +8,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.regions.Region;
+
 
 import java.io.IOException;
 import java.util.UUID;
@@ -41,12 +39,20 @@ public class S3ServiceImpl implements S3Service {
 
             s3Client.putObject(request, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-            // ✅ Incluye región correctamente
+
             return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, key);
 
         } catch (IOException e) {
             throw new RuntimeException("Error al subir archivo a S3", e);
         }
+    }
+
+    public String extractKeyFromUrl(String url) {
+
+        int index = url.indexOf(".amazonaws.com/");
+        if (index == -1) return url;
+
+        return url.substring(index + ".amazonaws.com/".length());
     }
 
     @Override

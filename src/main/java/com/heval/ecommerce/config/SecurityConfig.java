@@ -29,7 +29,7 @@ import java.util.List;
 @Slf4j
 public class SecurityConfig {
 
-    @Value("${JWT_SECRET}")
+    @Value("${app.jwt.secret}")
     private String secretKey;
 
     @Bean
@@ -50,8 +50,7 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
-                        // Rutas públicas adicionales (por ejemplo, de auth)
-                        .requestMatchers("/api/v1/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
 
                         // Cualquier otra ruta requiere autenticación
                         .anyRequest().authenticated()
@@ -71,7 +70,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of("https://hevalshop.com"));
         configuration.addAllowedOriginPattern("*");
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

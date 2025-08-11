@@ -28,6 +28,12 @@ public class Order {
     @Column(name= "order_id")
     private String orderId;
 
+    @Column(name = "coupon_code")
+    private String couponCode;
+
+    @Column(name = "coupon_discount")
+    private BigDecimal couponDiscount;
+
     @ManyToOne
     private User user;
 

@@ -29,8 +29,8 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi api() {
         return GroupedOpenApi.builder()
-                .group("my-api") // Nombre del grupo de la API para organizar la documentación
-                .pathsToMatch("/**") // Define que todas las rutas serán documentadas
+                .group("my-api")
+                .pathsToMatch("/**")
                 .build();
     }
 }

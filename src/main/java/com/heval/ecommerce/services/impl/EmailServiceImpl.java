@@ -1,16 +1,20 @@
 package com.heval.ecommerce.services.impl;
-
 import com.heval.ecommerce.entity.EmailVerification;
 import com.heval.ecommerce.exception.ApiValidateException;
 import com.heval.ecommerce.repository.EmailVerificationRepository;
 import com.heval.ecommerce.services.EmailService;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.Random;
 import java.util.regex.Pattern;
 
@@ -20,9 +24,28 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
     private final EmailVerificationRepository repository;
-
+    @Value("${app.base-url}")
+    private String baseUrl;
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     private static final Random random = new Random();
+
+    private void sendEmail(String to, String subject, String htmlContent) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+
+            String FROM = "heval.group.contact@gmail.com";
+            helper.setFrom(new InternetAddress(FROM, "Heval Shop"));
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al enviar el correo: " + e.getMessage(), e);
+        }
+    }
 
     @Override
     public String sendVerificationCode(String email) {
@@ -50,7 +73,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendPasswordRecoveryEmail(String email, String token) {
-        String link = "http://localhost:3000/auth/login/reset-password?token=" + token;
+        String link = baseUrl+"/auth/login/reset-password?token=" + token;
 
         String htmlContent = buildLinkEmail(
                 "Recuperación de contraseña",
@@ -89,41 +112,98 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendWholesaleContactMessage(String name, String email, String message) {
         String htmlContent = """
-        <html>
-            <body>
-                <h2>Nuevo mensaje de contacto al por mayor</h2>
-                <p><strong>Nombre:</strong> %s</p>
-                <p><strong>Email:</strong> %s</p>
-                <p><strong>Mensaje:</strong></p>
-                <p>%s</p>
-            </body>
-        </html>
-        """.formatted(name, email, message);
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {
+                font-family: 'Arial', sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            .header {
+                background-color: #2c3e50;
+                padding: 20px;
+                text-align: center;
+                border-radius: 5px 5px 0 0;
+            }
+            .header h1 {
+                color: #ffffff;
+                margin: 0;
+                font-size: 24px;
+            }
+            .content {
+                padding: 20px;
+                background-color: #f9f9f9;
+                border: 1px solid #e1e1e1;
+                border-top: none;
+                border-radius: 0 0 5px 5px;
+            }
+            .detail {
+                margin-bottom: 15px;
+            }
+            .detail strong {
+                color: #2c3e50;
+                display: inline-block;
+                width: 80px;
+            }
+            .message {
+                background-color: #ffffff;
+                padding: 15px;
+                border: 1px solid #e1e1e1;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
+            .footer {
+                margin-top: 20px;
+                font-size: 12px;
+                text-align: center;
+                color: #7f8c8d;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>Nuevo Mensaje de Contacto al por Mayor</h1>
+        </div>
+        <div class="content">
+            <div class="detail">
+                <strong>Nombre:</strong> %s
+            </div>
+            <div class="detail">
+                <strong>Email:</strong> <a href="mailto:%s">%s</a>
+            </div>
+            <div class="detail">
+                <strong>Mensaje:</strong>
+                <div class="message">%s</div>
+            </div>
+        </div>
+        <div class="footer">
+            Este mensaje fue enviado a través del formulario de contacto al por mayor de HevalShop.
+            <br>
+            © %d HevalShop - Todos los derechos reservados.
+        </div>
+    </body>
+    </html>
+    """.formatted(
+                HtmlUtils.htmlEscape(name),
+                HtmlUtils.htmlEscape(email),
+                HtmlUtils.htmlEscape(email),
+                message.replace("\n", "<br>"),
+                Year.now().getValue()
+        );
 
-        // Cambia esto si quieres otro correo de destino
-        String to = "hevalgroup@gmail.com";
-
+        String to = "heval.group.contact@gmail.com";
         sendEmail(to, "Contacto al por mayor - HevalShop", htmlContent);
     }
 
 
-    private void sendEmail(String to, String subject, String htmlContent) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            // Verificado en Amazon SES
-            String FROM = "heval.group.contact@gmail.com";
-            helper.setFrom(FROM);
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-
-            mailSender.send(message);
-        } catch (Exception e) {
-            throw new RuntimeException("Error al enviar el correo: " + e.getMessage(), e);
-        }
-    }
 
     private String buildVerificationEmail(String title, String intro, String instruction, String code, String footerNote) {
         return """

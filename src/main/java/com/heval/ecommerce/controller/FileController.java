@@ -23,7 +23,7 @@ public class FileController {
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadFile(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("folder") String folder // ejemplo: "imagenes"
+            @RequestParam("folder") String folder
     ) {
         String url = s3Service.uploadFile(file, folder);
         return ResponseEntity.ok(url);

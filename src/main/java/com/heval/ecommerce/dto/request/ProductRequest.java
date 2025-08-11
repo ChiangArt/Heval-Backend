@@ -23,8 +23,11 @@ public record ProductRequest(@NotBlank(message = "El título es obligatorio")
                              @Min(value = 0, message = "El precio debe ser mayor o igual a 0")
                              BigDecimal price,
 
-                             @NotEmpty(message = "Debes proporcionar al menos un color")
-                             List<@NotBlank(message = "El color no puede estar vacío") String> colors,
+//                           @NotEmpty(message = "Debes proporcionar al menos un color")
+//                           List<@NotBlank(message = "El color no puede estar vacío") String> colors,
+
+                             @NotBlank(message = "El color no puede estar vacío")
+                             String color,
 
                              @Min(value = 0, message = "La cantidad debe ser mayor o igual a 0")
                              int quantity,

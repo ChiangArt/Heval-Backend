@@ -1,5 +1,4 @@
 package com.heval.ecommerce.entity;
-
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,9 +16,16 @@ public class PaymentDetails {
     private String status;
     private Long paymentId;
 
-    private String externalReference;   // ID de orden o ref interna enviada a Mercado Pago
-    private String payerEmail;          // Correo del pagador
-    private String transactionAmount;   // Monto pagado (como string si hay decimales)
-    private String paymentType;         // Ej: "credit_card", "ticket", "account_money"
+    // ID de orden o ref interna enviada a Mercado Pago
+    private String externalReference;
+
+    // Correo del pagador
+    private String payerEmail;
+
+    // Monto pagado (como string si hay decimales)
+    private String transactionAmount;
+
+    // Ej: "credit_card", "ticket", "account_money"
+    private String paymentType;
 
 }
