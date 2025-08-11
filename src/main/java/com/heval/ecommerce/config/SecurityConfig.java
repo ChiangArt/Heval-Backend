@@ -62,7 +62,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/coupon").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/collections").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/collections/**").permitAll()
-
+                        .requestMatchers(HttpMethod.GET, "/api/v1/banners/**").permitAll()
                         // El resto de rutas/métodos requieren autenticación
                         .anyRequest().authenticated()
                 )
