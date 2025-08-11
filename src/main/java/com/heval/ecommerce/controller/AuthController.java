@@ -10,6 +10,7 @@ import com.heval.ecommerce.services.EmailService;
 import com.heval.ecommerce.services.JwtService;
 import com.heval.ecommerce.services.PasswordResetService;
 import com.heval.ecommerce.services.UserService;
+import com.heval.ecommerce.utility.JwtTokenUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class AuthController {
     private final UserMapper userMapper;
     private final EmailService emailService;
     private final PasswordResetService resetService;
+    private final JwtTokenUtil jwtTokenUtil;
 
 
     @PostMapping("/register")
@@ -112,6 +114,13 @@ public class AuthController {
         resetService.markAsUsed(token);
 
         return ResponseEntity.ok("Contraseña actualizada exitosamente.");
+    }
+
+
+    @GetMapping("/api/v1/auth/anonymous-token")
+    public ResponseEntity<String> getAnonymousToken() {
+        String token = jwtTokenUtil.generateAnonymousToken();
+        return ResponseEntity.ok(token);
     }
 
 }
