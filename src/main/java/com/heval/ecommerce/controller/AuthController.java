@@ -117,7 +117,7 @@ public class AuthController {
     }
 
 
-    @GetMapping("/api/v1/auth/anonymous-token")
+    @GetMapping("/anonymous-token")
     public ResponseEntity<String> getAnonymousToken() {
         String token = jwtTokenUtil.generateAnonymousToken();
         return ResponseEntity.ok(token);
