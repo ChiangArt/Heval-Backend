@@ -26,7 +26,7 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.base-url}")
     private String baseUrl;
 
-    @Value("${brevo.api-key}")
+    @Value("${spring.brevo.api-key}")
     private String brevoApiKey;
 
     private static final String FROM_EMAIL = "heval.group.contact@gmail.com";
