@@ -139,10 +139,19 @@ public class ProductServiceImpl implements ProductService {
 
 
 
-    @Cacheable(value = "productsByCollection", key = "#collectionId")
     @Override
     public List<Product> findProductsByCollectionId(Long collectionId) {
         return productRepository.findByCollectionIdAndActiveTrue(collectionId);
+    }
+
+
+
+
+
+
+    @Override
+    public List<String> obtenerColores() {
+        return productRepository.findDistinctColors();
     }
 
 
@@ -165,17 +174,6 @@ public class ProductServiceImpl implements ProductService {
 
         return price.setScale(2, RoundingMode.HALF_UP);
     }
-
-
-
-
-
-    @Override
-    public List<String> obtenerColores() {
-        return productRepository.findDistinctColors();
-    }
-
-
 
 
 
