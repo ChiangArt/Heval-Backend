@@ -40,8 +40,8 @@ public class PaymentController {
                 return ResponseEntity.status(404).body("Pago no encontrado");
             }
 
-            String externalReference = payment.getExternalReference(); // OrderId
-            String status = payment.getStatus(); // approved, pending, etc.
+            String externalReference = payment.getExternalReference();
+            String status = payment.getStatus();
 
             System.out.println(" External Reference: " + externalReference);
             System.out.println(" Estado del pago: " + status);

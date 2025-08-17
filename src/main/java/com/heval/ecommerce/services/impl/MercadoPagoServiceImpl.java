@@ -21,7 +21,7 @@ public class MercadoPagoServiceImpl implements MercadoPagoService {
             return paymentClient.get(paymentId);
         } catch (MPApiException e) {
             System.out.println("❌ Error de API Mercado Pago: " + e.getApiResponse().getContent());
-            throw e; // relanza para que lo capture tu controller si deseas
+            throw e;
         }
     }
 }

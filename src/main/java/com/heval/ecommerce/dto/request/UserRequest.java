@@ -16,8 +16,12 @@ public record UserRequest(
 
         @NotBlank(message = "La contraseña es obligatoria")
         @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
-        @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$", message = "La contraseña debe contener al menos un número, una letra mayúscula, una letra minúscula y un carácter especial")
+        @Pattern(
+                regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?=\\S+$).{8,}$",
+                message = "La contraseña debe contener al menos un número, una letra mayúscula, una letra minúscula y un carácter especial"
+        )
         String password,
+
 
         @NotNull(message = "El rol es obligatorio")
         UserRole role,

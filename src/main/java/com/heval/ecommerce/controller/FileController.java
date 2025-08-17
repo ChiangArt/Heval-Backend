@@ -1,7 +1,5 @@
 package com.heval.ecommerce.controller;
-
 import com.heval.ecommerce.services.S3Service;
-import com.heval.ecommerce.services.impl.S3ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

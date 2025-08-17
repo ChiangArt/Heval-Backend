@@ -89,9 +89,9 @@ public class MercadoPagoController {
 
             // 5. URLs de redirección
             PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
-                    .success(baseUrl+"/shop/checkout/success")
-                    .pending(baseUrl+"/shop/checkout/pending")
-                    .failure(baseUrl+"/shop/checkout/failure")
+                    .success("https://hevalshop.com/shop/checkout/success")
+                    .pending("https://hevalshop.com/shop/checkout/pending")
+                    .failure("https://hevalshop.com/shop/checkout/failure")
                     .build();
 
 
