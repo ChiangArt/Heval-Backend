@@ -19,7 +19,6 @@ public class ProductMapper {
                 .title(request.title())
                 .description(request.description())
                 .price(request.price())
-                .descriptionArchetype(request.descriptionArchetype())
                 .material(request.material())
                 .color(request.color())
                 .quantity(request.quantity())
@@ -43,7 +42,6 @@ public class ProductMapper {
                 product.getDescription(),
                 product.getSlug(),
                 product.getPrice(),
-                product.getDescriptionArchetype(),
                 product.getMaterial(),
                 currentPrice,
                 product.getDiscountPercentage(),

@@ -11,7 +11,6 @@ public record ProductResponse(
         String description,
         String slug,
         BigDecimal price,
-        String descriptionArchetype,
         String material,
         BigDecimal currentPrice,
         Integer discountPercentage,

@@ -96,7 +96,6 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setDescription(product.getDescription());
         existingProduct.setPrice(product.getPrice());
         existingProduct.setColor(product.getColor());
-        existingProduct.setDescriptionArchetype(product.getDescriptionArchetype());
         existingProduct.setMaterial(product.getMaterial());
         existingProduct.setQuantity(product.getQuantity());
         existingProduct.setDiscountPercentage(product.getDiscountPercentage());

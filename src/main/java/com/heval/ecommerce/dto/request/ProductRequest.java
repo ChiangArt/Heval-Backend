@@ -14,8 +14,8 @@ public record ProductRequest(@NotBlank(message = "El título es obligatorio")
                              @NotBlank(message = "La descripción es obligatoria")
                              String description,
 
-                             @NotBlank(message = "La descripción Arquetipo es obligatoria")
-                             String descriptionArchetype,
+//                             @NotBlank(message = "La descripción Arquetipo es obligatoria")
+//                             String descriptionArchetype,
 
                              @NotBlank(message = "El material es obligatoria")
                              String material,
