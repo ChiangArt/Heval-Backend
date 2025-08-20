@@ -44,3 +44,7 @@ public record ProductRequest(@NotBlank(message = "El título es obligatorio")
                              @NotNull(message = "La colección es obligatoria")
                              Long collectionId) {
 }
+
+
+
+

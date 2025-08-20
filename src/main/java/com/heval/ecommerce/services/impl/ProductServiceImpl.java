@@ -1,5 +1,6 @@
 package com.heval.ecommerce.services.impl;
 import com.heval.ecommerce.dto.request.ProductFilterRequest;
+import com.heval.ecommerce.dto.request.UpdateProductRequest;
 import com.heval.ecommerce.dto.response.ProductCardResponse;
 import com.heval.ecommerce.entity.*;
 import com.heval.ecommerce.exception.ApiValidateException;
@@ -88,29 +89,23 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Override
-    public Product updateProduct(Long productId, Product product) {
+    public Product updateProduct(Long productId, UpdateProductRequest request) {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new ApiValidateException("Producto no encontrado con id: " + productId));
 
-        existingProduct.setTitle(product.getTitle());
-        existingProduct.setDescription(product.getDescription());
-        existingProduct.setPrice(product.getPrice());
-        existingProduct.setColor(product.getColor());
-        existingProduct.setMaterial(product.getMaterial());
-        existingProduct.setQuantity(product.getQuantity());
-        existingProduct.setDiscountPercentage(product.getDiscountPercentage());
-        existingProduct.setImageUrls(product.getImageUrls());
-        existingProduct.setDiscountUntil(product.getDiscountUntil());
+        productMapper.updateEntityFromRequest(request, existingProduct);
 
-        if (product.getCollection() != null && product.getCollection().getId() != null) {
-            Collection collection = collectionRepository.findById(product.getCollection().getId())
-                    .orElseThrow(() -> new ApiValidateException("Colección no encontrada con id: " + product.getCollection().getId()));
+        // Si llega colección, validarla con el repo
+        if (existingProduct.getCollection() != null) {
+            Collection collection = collectionRepository.findById(existingProduct.getCollection().getId())
+                    .orElseThrow(() -> new ApiValidateException("Colección no encontrada con id: " + existingProduct.getCollection().getId()));
             existingProduct.setCollection(collection);
-        } else {
-            existingProduct.setCollection(null);
         }
+
         return productRepository.save(existingProduct);
     }
+
+
 
 
 

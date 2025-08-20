@@ -1,6 +1,7 @@
 package com.heval.ecommerce.controller;
 import com.heval.ecommerce.dto.request.ProductFilterRequest;
 import com.heval.ecommerce.dto.request.ProductRequest;
+import com.heval.ecommerce.dto.request.UpdateProductRequest;
 import com.heval.ecommerce.dto.response.ProductCardResponse;
 import com.heval.ecommerce.dto.response.ProductResponse;
 import com.heval.ecommerce.entity.Product;
@@ -68,12 +69,21 @@ public class ProductController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id, @RequestBody @Valid ProductRequest request) {
-        Product productEntity = productMapper.toEntity(request);
-        Product updatedProduct = productService.updateProduct(id, productEntity);
-        BigDecimal currentPrice = productService.calculateCurrentPrice(updatedProduct.getPrice(), updatedProduct.getDiscountPercentage(), updatedProduct.getDiscountUntil());
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateProductRequest request) {
+
+        Product updatedProduct = productService.updateProduct(id, request);
+
+        BigDecimal currentPrice = productService.calculateCurrentPrice(
+                updatedProduct.getPrice(),
+                updatedProduct.getDiscountPercentage(),
+                updatedProduct.getDiscountUntil()
+        );
+
         return ResponseEntity.ok(productMapper.toResponse(updatedProduct, currentPrice));
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {

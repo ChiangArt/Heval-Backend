@@ -1,6 +1,7 @@
 package com.heval.ecommerce.services;
 
 import com.heval.ecommerce.dto.request.ProductFilterRequest;
+import com.heval.ecommerce.dto.request.UpdateProductRequest;
 import com.heval.ecommerce.dto.response.ProductCardResponse;
 import com.heval.ecommerce.entity.Product;
 import org.springframework.data.domain.Page;
@@ -16,7 +17,7 @@ public interface ProductService {
     Product findProductById(Long id);
     Product findProductBySlug(String slug);
     Product createProduct(Product product);
-    Product updateProduct(Long productId, Product product);
+    Product updateProduct(Long productId, UpdateProductRequest request);
     void deleteProduct(Long id);
     List<Product> findProductsByCollectionId(Long collectionId);
     BigDecimal calculateCurrentPrice(BigDecimal price, Integer discountPercent, LocalDateTime discountUntil);
