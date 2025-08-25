@@ -56,6 +56,9 @@ public class ProductMapper {
         );
     }
 
+
+
+
     public void updateEntityFromRequest(UpdateProductRequest request, Product product) {
         if (request.title() != null) {
             product.setTitle(request.title());

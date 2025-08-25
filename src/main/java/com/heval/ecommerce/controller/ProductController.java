@@ -40,6 +40,7 @@ public class ProductController {
     }
 
 
+
     @GetMapping
     public ResponseEntity<Page<ProductCardResponse>> getFilteredProducts(
             @RequestParam(required = false) String colors,
@@ -51,6 +52,8 @@ public class ProductController {
         Page<ProductCardResponse> responsePage = productService.getfilteredProducts(request, pageable);
         return ResponseEntity.ok(responsePage);
     }
+
+
 
 
     @GetMapping("/{id}")
